@@ -27,11 +27,11 @@ my_app = dash.Dash('my_app', external_stylesheets=external_stylesheets,suppress_
 my_app.layout = html.Div([
     html.H2('CS 5764 Final Project: Analyzing the real estate dataset',style={'textAlign':'center'}),
     html.Br(),
-    dcc.Tabs(id='hw-questions',children=[dcc.Tab(label = 'Numerical features analysis',value = 't1'),
+    dcc.Tabs(id='questions',children=[dcc.Tab(label = 'Numerical features analysis',value = 't1'),
                                          dcc.Tab(label = 'Categorical features analysis',value = 't2'),
                                          dcc.Tab(label = 'Statistics',value = 't3'),
-                                         #dcc.Tab(label = 'Question 4',value = 'q4'),
-                                         #dcc.Tab(label = 'Question 5',value = 'q5'),
+                                         dcc.Tab(label = 'numerical only',value = 't4'),
+                                         dcc.Tab(label = 'tab 5',value = 't5'),
                                          #dcc.Tab(label = 'Question 6',value = 'q6'),
                                          ]),
     html.Div(id = 'layout')
@@ -221,157 +221,210 @@ def update_output(checklist,variable):
     return output
 
 #Question 4 layout
-x_q4 = np.linspace(-2,2,1000)
-question4_layout = html.Div([
-    html.H1('Please enter the polynomial order'),
-    dcc.Input(id = 'my-input1', type = 'number'),
-
-    html.Div(id='output-id'),
-    dcc.Graph(id='graph-id')
-
+tab4_layout = html.Div([
+    html.H3('Choose the type of graph to be plotted.'),
+    dcc.Dropdown(id='graph-dropdown_tab4', options=[
+        {'label': 'Scatter-matrix', 'value': 'Scatter-matrix'},
+        {'label': 'Scatter', 'value': 'Scatter'},
+        {'label': 'Bar', 'value': 'Bar'},
+        {'label': 'Line', 'value': 'Line'},
+        {'label': 'Area', 'value': 'Area'},
+        {'label': 'Timeline', 'value': 'Timeline'},
+        {'label': 'Pie', 'value': 'Pie'},
+        {'label': 'Histogram', 'value': 'Histogram'},
+        {'label': 'Box', 'value': 'Box'},
+        {'label': 'Violin', 'value': 'Violin'},
+        {'label': 'ecdf', 'value': 'ecdf'},
+        {'label': 'Density-contour', 'value': 'Density-contour'},
+        {'label': 'Density-heatmap', 'value': 'Density-heatmap'},
+        {'label': 'Imshow', 'value': 'Imshow'},
+        {'label': 'Scatter-Map', 'value': 'Scatter-Map'},
+    ], multi=False, placeholder="Select the type of graph to be plotted for the numerical feature"),
+    html.H3('Plotting numerical feature distribution for states'),
+    dcc.Dropdown(id='feature-dropdown-tab4', options=[
+        {'label': 'price', 'value': 'price'},
+        {'label': 'bed', 'value': 'bed'},
+        {'label': 'bath', 'value': 'bath'},
+        {'label': 'acre_lot', 'value': 'acre_lot'},
+        {'label': 'house_size', 'value': 'house_size'},
+    ], multi=True, placeholder="Select The Numerical Features To Be Analyzed"),
+    html.Div(id='div-id-numerical-only'),
+    dcc.Graph(id='numerical-only-graph')
 ])
+
+
 @my_app.callback(
-    Output('graph-id', 'figure'),
-    [Input('my-input1', 'value'),
-     ]
+    Output('numerical-only-graph', 'figure'),
+    [Input('graph-dropdown_tab4', 'value'), Input('feature-dropdown-tab4', 'value')]
 
 )
+def update_graph(graph_type, selected_features):
+        if not selected_features:
+            return {}
+        if graph_type == 'Scatter-matrix':
+            # Ensure at least 2 features are selected for a scatter-matrix
+            if len(selected_features) < 2:
+                return {}
+            fig = px.scatter_matrix(df, dimensions=selected_features)
+            return fig
 
-def update_output(input_value):
-    if input_value is not None:
-        input_value = float(input_value)
-    else:
-        input_value = 0.0
-    output = x_q4**input_value
-    fig = px.line(output)
-    return fig
+        elif graph_type == 'Scatter':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.scatter(df, x=selected_features[0], y=selected_features[1])
+            return fig
+
+        elif graph_type == 'Bar':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.bar(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        elif graph_type == 'Line':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.line(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        elif graph_type == 'Area':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.area(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        # elif graph_type == 'Timeline':
+        #     if len(selected_features) != 2:
+        #         return {}
+        #     fig = px.timeline(df,x_start =  )
+        elif graph_type == 'pie':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.pie(df, values='price', names='state')
+            return fig
+        elif graph_type == 'Violin':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.violin(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        elif graph_type == 'ecdf':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.ecdf(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        elif graph_type == 'Density-contour':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.density_contour(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        elif graph_type == 'Density-heatmap':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.density_heatmap(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        elif graph_type == 'imshow':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.imshow(df, x=selected_features[0], y=selected_features[1])
+            return fig
+        elif graph_type == 'Scatter-Map':
+            if len(selected_features) != 2:
+                return {}
+            fig = px.scatter_map(df)
+            return fig
+
+
+
+
+
+
+    # if graph_type == 'Scatter-matrix':
+    #     fig = px.scatter_matrix(df)
+    # elif graph_type == 'Scatter':
+    #     fig = px.histogram(df, x=feature1,y=feature2)
+    # elif graph_type == 'Bar':
+    #     fig = px.bar(df, x=feature1, y=feature2)
+    # elif graph_type == 'Line':
+    #     fig = px.line(df, x=feature1, y=feature2)
+    # elif graph_type == 'Area':
+    #     fig = px.area(df, x=feature1, y=feature2)
+    # return fig
+    # elif graph_type == 'Timeline':
+    #     fig = px.histogram(df, x=feature)
+    # elif graph_type == 'Pie':
+    #     fig = ff.create_distplot(df[feature], ['distplot'])
+    # elif graph_type == 'Histogram':
+    #     fig = px.histogram(df, x=feature)
+    # elif graph_type == 'Box':
+    #     fig = ff.create_distplot(df[feature], ['distplot'])
+    # elif graph_type == 'Violin':
+    #     fig = px.histogram(df, x=feature)
+    # elif graph_type == 'ecdf':
+    #     fig = ff.create_distplot(df[feature], ['distplot'])
+    # elif graph_type == 'Density-contour':
+    #     fig = px.histogram(df, x=feature)
+    # elif graph_type == 'Density-heatmap':
+    #     fig = ff.create_distplot(df[feature], ['distplot'])
+    # elif graph_type == 'Imshow':
+    #     fig = px.histogram(df, x=feature)
+    # elif graph_type == 'Scatter-Map':
+    #     fig = ff.create_distplot(df[feature], ['distplot'])
+
+
 
 #Question 5 layout
 
 question5_layout = html.Div([
-    html.H3('Please enter the number of sinusoidal cycles'),
-    dcc.Input(id = 'my-input1', type = 'number',value = 4),
-    html.H3('Please enter the mean of white noise'),
-    dcc.Input(id = 'my-input2', type = 'number',value = 1),
-    html.H3('Please enter the standard deviation of the white noise'),
-    dcc.Input(id = 'my-input3', type = 'number',value = 1),
-    html.H3('Please enter the number of samples'),
-    dcc.Input(id = 'my-input4', type = 'number',value = 1000),
+    html.H3('Bar Plot'),
+    html.Button('Submit', id='submit-val', n_clicks=0),
 
-    dcc.Graph(id='graph1-sin'),
-    dcc.Graph(id='graph2-fft'),
+
+    # ]),
+    dcc.Graph(id='graph-tab5'),
 ])
 
 @my_app.callback(
-    [Output('graph1-sin', 'figure'),
-     Output('graph2-fft', 'figure')],
-    [Input('my-input1', 'value'),
-     Input('my-input2', 'value'),
-     Input('my-input3', 'value'),
-     Input('my-input4', 'value')
-     ]
-)
-def update_output(input1, input2, input3, input4):
-    input1 = float(input1) if input1 is not None else 0.0
-    input2 = float(input2) if input2 is not None else 0.0
-    input3 = float(input3) if input3 is not None else 0.0
-    input4 = int(input4) if input4 is not None else 0
+    Output('graph-tab5', 'figure'),
+    Input('submit-val', 'n_clicks'),
+    #Input('bar-dropdown-tab5', 'value'),
 
-    print(input1, input2, input3, input4)
-    x_q5 = np.linspace(-np.pi, np.pi, input4)
-    y_q5 = np.sin(x_q5*input1) + np.random.normal(input2, input3, input4)
-    from dash.exceptions import PreventUpdate
-    if x_q5.size != 0:
-        fig1 = px.line(x=x_q5, y=y_q5)
-        fyy = np.fft.fft(y_q5)
-        fig21 = np.abs(fyy)
-        fig2 = px.line(x=x_q5, y=fig21)
-        return fig1, fig2
-    elif x_q5.size == 0:
-        raise PreventUpdate
+)
+def update_output(n_clicks):
+    if n_clicks <100:
+        avg_price_per_state = df.groupby('state')['price'].mean()
+        fig = px.bar(avg_price_per_state)
+        return fig
 
 #Question 6 layout
 question6_layout = html.Div([html.Img(id='img', src='assets/image.png'),
 html.H3("b1"),
 dcc.Slider(
-        id='b1',
-        min=-10,
+        id='bed',
+        min=0,
         max=10,
-        step=0.001,
-        value=5,
-        marks={i: str(i) for i in range(-10, 11)}),
-                             html.H3("b2"),
+        step=1,
+        value=3,
+        marks={i: str(i) for i in range(0, 11)}),
+        html.H3("bedroom"),
 dcc.Slider(
-        id='b2',
-        min=-10,
+        id='bath',
+        min=0,
         max=10,
-        step=0.001,
-        value=5,
-        marks={i: str(i) for i in range(-10, 11)}
+        step=1,
+        value=2,
+        marks={i: str(i) for i in range(0, 11)}
     ),
-                             html.H3("w1"),
-dcc.Slider(
-        id='w1',
-        min=-10,
-        max=10,
-        step=0.001,
-        value=5,
-        marks={i: str(i) for i in range(-10, 11)}
-    ),
-                             html.H3("w2"),
-dcc.Slider(
-        id='w2',
-        min=-10,
-        max=10,
-        step=0.001,
-        value=5,
-        marks={i: str(i) for i in range(-10, 11)}
-    ),
-                             html.H3("b3"),
-dcc.Slider(
-        id='b3',
-        min=-10,
-        max=10,
-        step=0.001,
-        value=5,
-        marks={i: str(i) for i in range(-10, 11)}
-    ),
-                             html.H3("w3"),
-dcc.Slider(
-        id='w3',
-        min=-10,
-        max=10,
-        step=0.001,
-        value=5,
-        marks={i: str(i) for i in range(-10, 11)}
-    ),
-                             html.H3("w4"),
-dcc.Slider(
-        id='w4',
-        min=-10,
-        max=10,
-        step=0.001,
-        value=5,
-        marks={i: str(i) for i in range(-10, 11)}
-    ),
+    html.H3("bathroom"),
         dcc.Graph(id='graph-q6')
 ],style={'width': '30%', 'display': 'inline-block', 'vertical-align':'middle'})
 
 @my_app.callback(
         Output('graph-q6', 'figure'),
-        [Input('b1', 'value'),
-         Input('b2', 'value'),
-         Input('w1', 'value'),
-         Input('w2', 'value'),
-         Input('b3', 'value'),
-         Input('w3', 'value'),
-         Input('w4', 'value')
+        [Input('bed', 'value'),
+         Input('bath', 'value'),
          ]
 
 )
 
-def update_output(b1, b2, w1, w2, b3, w3, w4):
-        print(b1, b2, w1, w2, b3, w3, w4)
+def update_output(bed,bath):
+        print(bed,bath)
+
         p = np.linspace(-5,5,1000)
         x1 = p*w1 + b1
         x2 = p*w2 + b2
@@ -386,7 +439,7 @@ def update_output(b1, b2, w1, w2, b3, w3, w4):
 
 @my_app.callback(
     Output('layout', 'children'),
-    [Input('hw-questions', 'value')
+    [Input('questions', 'value')
      ]
 )
 def update_layout(tab):
@@ -396,10 +449,10 @@ def update_layout(tab):
         return tab2_layout
     elif tab == 't3':
          return tab3_layout
-    # elif ques == 't4':
-    #     return question4_layout
-    # elif ques == 't5':
-    #     return question5_layout
+    elif tab == 't4':
+         return tab4_layout
+    elif tab == 't5':
+         return question5_layout
     # elif ques == 't6':
     #     return question6_layout
 

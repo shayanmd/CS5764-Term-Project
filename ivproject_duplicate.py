@@ -32,7 +32,7 @@ for feature in df_numerical.columns:
     df_numerical = df[['price', 'bed', 'bath', 'acre_lot', 'house_size', 'price_per_sqft', 'total_rooms', 'year']]
 
 
-
+print(df.head().to_string())
 
 #Line Plot
 avg_price_per_year = df.groupby('year')['price'].mean()
@@ -60,7 +60,6 @@ axes[1].set_ylabel('($)')
 #plt.legend()
 plt.tight_layout()
 plt.show()
-
 
 #Stacked Bar plot
 avg_bed_per_state = df.groupby('state')['bed'].mean()
@@ -112,6 +111,16 @@ plt.xlabel('State')
 plt.ylabel('Number of Properties')
 plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
+plt.show()
+
+
+
+#Histogram
+plt.figure(figsize=(10,6))
+plt.hist(df['price'])
+plt.title('Distribution of Price')
+plt.xlabel('price')
+plt.ylabel('count')
 plt.show()
 
 #DO subplots of top 3 states with top cities
@@ -170,15 +179,7 @@ plt.ylim(0,7500)
 plt.show()
 
 
-#1)
-# sns.displot(data=sample_df, x="price", hue="state", kind="kde")
-# plt.title("Bivariate plot with hue and kde")
-# plt.tight_layout()
-# plt.show()
 
-#2)
-#sns.displot(data=sample_df, x="flipper_length_mm", hue="species", multiple="stack")
-#Pair Plot
 
 df_pairplot = df.drop(columns=['brokered_by','street','price_per_sqft','total_rooms','year','zip_code','acre_lot'])
 ten_df = df_pairplot.sample(n=10000)
@@ -223,7 +224,7 @@ plt.show()
 #CHeck this
 
 #QQplot
-sm.qqplot(df_numerical['house_size'], line ='45')
+sm.qqplot(df_numerical['house_size'], line ='s')
 plt.title('QQ Plot for Price')
 plt.show()
 #CHeck this
