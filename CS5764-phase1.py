@@ -29,20 +29,34 @@ print(df.head().to_string())
 #Creating two new features
 df["price_per_sqft"] = df["price"]/df["house_size"]
 df["total_rooms"] = df["bed"]+df["bath"]
+print(df.head().to_string())
 
 #Box Plot for outlier removal
 
-Q1 = df['price'].quantile(0.25)
-Q3 = df['price'].quantile(0.75)
-IQR = Q3 - Q1
-lower_bound = Q1 - 1.5*IQR
-upper_bound = Q3 + 1.5*IQR
-outliers = df[(df['price'] < lower_bound) | (df['price'] > upper_bound)]
-df_cleaned = df[(df['price'] >= lower_bound) & (df['price'] <= upper_bound)]
-sns.boxplot(x = df_cleaned['price'])
-plt.title("Boxplot of Prices after Outlier Removal")
-plt.show()
+# Q1 = df['price'].quantile(0.25)
+# Q3 = df['price'].quantile(0.75)
+# IQR = Q3 - Q1
+# lower_bound = Q1 - 1.5*IQR
+# upper_bound = Q3 + 1.5*IQR
+# outliers = df[(df['price'] < lower_bound) | (df['price'] > upper_bound)]
+# df_cleaned = df[(df['price'] >= lower_bound) & (df['price'] <= upper_bound)]
+# sns.boxplot(x = df_cleaned['price'])
+# plt.title("Boxplot of Prices after Outlier Removal")
+# plt.show()
 
+#for feature in df.columns:
+#find iqr1, iqr3 (25/75)
+#use df = df[df[feature] >= iqr1 and df[feature] <= iqr3]
+
+#Outlier Removal
+for feature in df.columns:
+    Q1 = df[feature].quantile(0.25)
+    Q3 = df[feature].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5*IQR
+    upper_bound = Q3 + 1.5*IQR
+    outliers = df[(df[feature] < lower_bound) | (df[feature] > upper_bound)]
+    df_cleaned = df[(df[feature] >= lower_bound) & (df[feature] <= upper_bound)]
 
 
 
